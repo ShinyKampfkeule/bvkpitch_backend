@@ -1,0 +1,61 @@
+{
+  "searchObject": {
+    "id": "address.4664644676297800",
+    "type": "Feature",
+    "place_type": [
+      "address"
+    ],
+    "relevance": 0.96875,
+    "properties": {
+      "accuracy": "rooftop"
+    },
+    "text": "Gohliser Straße",
+    "place_name": "Gohliser Straße 28, 12627 Berlin, Germany",
+    "center": [
+      13.627507,
+      52.540668
+    ],
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        13.627507,
+        52.540668
+      ]
+    },
+    "address": "28",
+    "context": [
+      {
+        "id": "postcode.15508174149384140",
+        "text": "12627"
+      },
+      {
+        "id": "locality.12109461955811780",
+        "text": "Hellersdorf"
+      },
+      {
+        "id": "place.14094307404564380",
+        "short_code": "DE-BE",
+        "wikidata": "Q64",
+        "text": "Berlin"
+      },
+      {
+        "id": "country.11437281100480410",
+        "wikidata": "Q183",
+        "short_code": "de",
+        "text": "Germany"
+      }
+    ]
+  },
+  "makro": [
+    {
+      "name": "score_gr_2y_unemp_rate",
+      "de": "Arbeitslosenquote: 2-jährige Veränderung"
+    }
+  ],
+  "mikro": [
+    {
+      "name": "score_A_B_C_D_cities_sum_00",
+      "de": "A-, B-, C- und D-Städte"
+    }
+  ]
+}
