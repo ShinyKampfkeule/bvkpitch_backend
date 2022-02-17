@@ -7,6 +7,7 @@ const cors = require('cors');
 
 var indexRouter = require('./routes/index');
 var comparitiveRouter = require('./routes/comparativeOffers');
+const searchRouter = require('./routes/getSearch')
 
 var app = express();
 
@@ -19,12 +20,13 @@ app.use(cors());
 
 app.use('/analysis', indexRouter);
 app.use('/comparitiveOffers', comparitiveRouter);
+app.use('/search', searchRouter)
 
 app.use(function(req, res, next) {
     next(createError(404));
 });
 
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res) {
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
