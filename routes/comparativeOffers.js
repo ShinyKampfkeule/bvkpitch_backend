@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch')
-const result = require('../searchResult.json')
+const jsonFile = require('../searchResult.json')
+
+const result = jsonFile.searchObject
+
 
 router.post('/', async function(req, res) {
     try {
