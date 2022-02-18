@@ -1,36 +1,36 @@
 {
   "searchObject": {
-    "id": "address.4664644676297800",
+    "id": "address.2166682547490878",
     "type": "Feature",
     "place_type": [
       "address"
     ],
-    "relevance": 0.96875,
+    "relevance": 1,
     "properties": {
       "accuracy": "rooftop"
     },
-    "text": "Gohliser Straße",
-    "place_name": "Gohliser Straße 28, 12627 Berlin, Germany",
+    "text": "Blumberger Damm",
+    "place_name": "Blumberger Damm 201, 12687 Berlin, Germany",
     "center": [
-      13.627507,
-      52.540668
+      13.571939,
+      52.551785
     ],
     "geometry": {
       "type": "Point",
       "coordinates": [
-        13.627507,
-        52.540668
+        13.571939,
+        52.551785
       ]
     },
-    "address": "28",
+    "address": "201",
     "context": [
       {
-        "id": "postcode.15508174149384140",
-        "text": "12627"
+        "id": "postcode.12779613099993400",
+        "text": "12687"
       },
       {
-        "id": "locality.12109461955811780",
-        "text": "Hellersdorf"
+        "id": "locality.10467935370187290",
+        "text": "Marzahn"
       },
       {
         "id": "place.14094307404564380",
@@ -48,14 +48,38 @@
   },
   "makro": [
     {
-      "name": "score_gr_2y_unemp_rate",
+      "name": "gr_2y_unemp_rate",
       "de": "Arbeitslosenquote: 2-jährige Veränderung"
+    },
+    {
+      "name": "pop_sum_00",
+      "de": "Bevölkerung"
+    },
+    {
+      "name": "einwohner_PROG_MITTEL_rate_00",
+      "de": "Bevölkerungsprognose 2030"
+    },
+    {
+      "name": "purchasing_power_sum_00_per_capita",
+      "de": "Kaufkraft pro Kopf"
     }
   ],
   "mikro": [
     {
-      "name": "score_A_B_C_D_cities_sum_00",
-      "de": "A-, B-, C- und D-Städte"
+      "name": "v2_connect",
+      "de": "ÖPNV-Anbindung"
+    },
+    {
+      "name": "v1_interregion_connect",
+      "de": "Überregionale Anbindung"
+    },
+    {
+      "name": "v2_kita",
+      "de": "Kitas"
+    },
+    {
+      "name": "v2_flood_risk",
+      "de": "Hochwasserrisiko"
     }
   ]
 }

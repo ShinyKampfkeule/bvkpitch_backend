@@ -5,9 +5,11 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors');
 
-var indexRouter = require('./routes/index');
-var comparitiveRouter = require('./routes/comparativeOffers');
-const searchRouter = require('./routes/getSearch')
+const indexRouter = require('./routes/index');
+const comparitiveRouter = require('./routes/comparativeOffers');
+const searchRouter = require('./routes/getSearch');
+const yieldsRouter = require('./routes/marketYields');
+const mlpRouter = require('./routes/machineLearningPrices');
 
 var app = express();
 
@@ -19,8 +21,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
 app.use('/analysis', indexRouter);
-app.use('/comparitiveOffers', comparitiveRouter);
+app.use('/comparativeOffers', comparitiveRouter);
 app.use('/search', searchRouter)
+app.use('/yields', yieldsRouter)
+app.use('/mlp', mlpRouter)
 
 app.use(function(req, res, next) {
     next(createError(404));
