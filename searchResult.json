@@ -1,6 +1,6 @@
 {
   "searchObject": {
-    "id": "address.2166682547490878",
+    "id": "address.5870201107577542",
     "type": "Feature",
     "place_type": [
       "address"
@@ -9,34 +9,40 @@
     "properties": {
       "accuracy": "rooftop"
     },
-    "text": "Blumberger Damm",
-    "place_name": "Blumberger Damm 201, 12687 Berlin, Germany",
+    "text": "Zehdenicker Straße",
+    "place_name": "Zehdenicker Straße 26, 16792 Zehdenick, Germany",
     "center": [
-      13.571939,
-      52.551785
+      13.385276,
+      53.035053
     ],
     "geometry": {
       "type": "Point",
       "coordinates": [
-        13.571939,
-        52.551785
+        13.385276,
+        53.035053
       ]
     },
-    "address": "201",
+    "address": "26",
     "context": [
       {
-        "id": "postcode.12779613099993400",
-        "text": "12687"
+        "id": "postcode.2733280823878910",
+        "text": "16792"
       },
       {
-        "id": "locality.10467935370187290",
-        "text": "Marzahn"
+        "id": "locality.7017189087061800",
+        "wikidata": "Q2530062",
+        "text": "Vogelsang"
       },
       {
-        "id": "place.14094307404564380",
-        "short_code": "DE-BE",
-        "wikidata": "Q64",
-        "text": "Berlin"
+        "id": "place.3905369337400280",
+        "wikidata": "Q184481",
+        "text": "Zehdenick"
+      },
+      {
+        "id": "region.7840720301387540",
+        "short_code": "DE-BB",
+        "wikidata": "Q1208",
+        "text": "Brandenburg"
       },
       {
         "id": "country.11437281100480410",
