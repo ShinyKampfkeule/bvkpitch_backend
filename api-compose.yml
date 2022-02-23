@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  api:
+    image: docker.io/library/bvkpitchapi
+    ports:
+      - "3001:3001"
+    networks:
+      - bvkpitch
+
+networks:
+  bvkpitch:
+    external: true

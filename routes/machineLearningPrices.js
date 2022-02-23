@@ -7,7 +7,7 @@ let topics = ["residential-apartment-rent", "residential-apartment-sale", "resid
 
 router.post('/location',  async function(req, res) {
     let result
-    await fs.readFile('searchResult.json', (err, data) => {
+    await fs.readFile(`${req.body.id}.json`, (err, data) => {
         if (err) throw err;
         let json = JSON.parse(data);
         result = json.searchObject

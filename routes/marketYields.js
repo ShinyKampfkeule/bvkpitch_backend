@@ -6,7 +6,7 @@ const fs = require('fs')
 router.post('/', async function(req, res) {
     try {
         let result
-        await fs.readFile('searchResult.json', (err, data) => {
+        await fs.readFile(`${req.body.id}.json`, (err, data) => {
             if (err) throw err;
             let json = JSON.parse(data);
             result = json.searchObject
