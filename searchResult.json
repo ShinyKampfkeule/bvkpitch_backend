@@ -1,48 +1,48 @@
 {
   "searchObject": {
-    "id": "address.5870201107577542",
+    "id": "address.2402333721720394",
     "type": "Feature",
     "place_type": [
       "address"
     ],
     "relevance": 1,
     "properties": {
-      "accuracy": "rooftop"
+      "accuracy": "interpolated"
     },
-    "text": "Zehdenicker Straße",
-    "place_name": "Zehdenicker Straße 26, 16792 Zehdenick, Germany",
+    "text": "Sachsendamm",
+    "place_name": "Sachsendamm 4, 02943 Weißwasser, Germany",
     "center": [
-      13.385276,
-      53.035053
+      14.621607,
+      51.496495
     ],
     "geometry": {
       "type": "Point",
       "coordinates": [
-        13.385276,
-        53.035053
-      ]
+        14.621607,
+        51.496495
+      ],
+      "interpolated": true,
+      "omitted": true
     },
-    "address": "26",
+    "address": "4",
     "context": [
       {
-        "id": "postcode.2733280823878910",
-        "text": "16792"
+        "id": "postcode.10562137116224100",
+        "text": "02943"
       },
       {
-        "id": "locality.7017189087061800",
-        "wikidata": "Q2530062",
-        "text": "Vogelsang"
+        "id": "locality.17244265071708510",
+        "text": "Weißwasser"
       },
       {
-        "id": "place.3905369337400280",
-        "wikidata": "Q184481",
-        "text": "Zehdenick"
+        "id": "place.17302865243384910",
+        "text": "Weißwasser"
       },
       {
-        "id": "region.7840720301387540",
-        "short_code": "DE-BB",
-        "wikidata": "Q1208",
-        "text": "Brandenburg"
+        "id": "region.12862204712927610",
+        "short_code": "DE-SN",
+        "wikidata": "Q1202",
+        "text": "Saxony"
       },
       {
         "id": "country.11437281100480410",

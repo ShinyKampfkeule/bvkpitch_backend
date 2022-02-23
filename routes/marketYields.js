@@ -31,7 +31,11 @@ router.post('/', async function(req, res) {
             })
                 .then((response) => response.json())
                 .then((data) => {
-                    res.json({data: data})
+                    if (data.code === 400) {
+                        res.json({data: data.code})
+                    } else {
+                        res.json({data: data})
+                    }
                 })
         })
     } catch (e) {
