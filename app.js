@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors');
+const compression = require('compression')
 
 const indexRouter = require('./routes/index');
 const comparitiveRouter = require('./routes/comparativeOffers');
@@ -13,6 +14,7 @@ const mlpRouter = require('./routes/machineLearningPrices');
 
 var app = express();
 
+app.use(compression())
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
