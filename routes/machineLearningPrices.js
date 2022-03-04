@@ -4,6 +4,7 @@ const fetch = require('node-fetch')
 const fs = require('fs')
 
 let topics = ["residential-apartment-rent", "residential-apartment-sale", "residential-house-rent", "residential-house-sale", "office", "retail"]
+const place_name = ["","Pyrmonter Straße 66a, 33699 Bielefeld, Germany","","","","","","","","","","","","","","","","", ""]
 
 router.post('/location',  async function(req, res) {
     let result
@@ -11,12 +12,17 @@ router.post('/location',  async function(req, res) {
         if (err) throw err;
         let json = JSON.parse(data);
         result = json.searchObject
+        if(place_name[req.body.id] === result.place_name){
+            console.log("yep")
+            return
+        }
+        place_name[req.body.id] = result.place_name
         fetch('https://api.21re.de/v3/prices/location', {
             method: 'POST',
             headers: {
                 'accept': 'application/json',
                 'content-type': 'application/json',
-                'authorization': 'Bearer FP14A204OJQ3TPUQ8A1GA4EFV6I1NRV8S50ODCT2IRO15JPA7M8GCB1R',
+                'authorization': 'Bearer J5P9OA6Q9LDDTG0EA10B6S8NU1CQ6J7K9G8TE9D6RLJ4042Q2GAJR37F',
                 'Content-Type': 'application/json; charset=UTF-8'
             },
             body: JSON.stringify({
@@ -44,13 +50,18 @@ router.post('/unit', async function(req, res) {
         if (err) throw err;
         let json = JSON.parse(data);
         result = json.searchObject
+        if(place_name[req.body.id] === result.place_name){
+            res.json({changed: false})
+            return
+        }
+        place_name[req.body.id] = result.place_name
         topics.map((topic) => {
             fetch('https://api.21re.de/v3/prices/unit', {
                 method: 'POST',
                 headers: {
                     'accept': 'application/json',
                     'content-type': 'application/json',
-                    'authorization': 'Bearer FP14A204OJQ3TPUQ8A1GA4EFV6I1NRV8S50ODCT2IRO15JPA7M8GCB1R',
+                    'authorization': 'Bearer J5P9OA6Q9LDDTG0EA10B6S8NU1CQ6J7K9G8TE9D6RLJ4042Q2GAJR37F',
                     'Content-Type': 'application/json; charset=UTF-8'
                 },
                 body: JSON.stringify({
@@ -69,7 +80,7 @@ router.post('/unit', async function(req, res) {
                     let mlpObject = {key: topic, data: data}
                     fullArray.push(mlpObject)
                     if (fullArray.length === 6) {
-                        res.json({unitData: fullArray})
+                        res.json({changed: true, unitData: fullArray})
                     }
                 })
         })

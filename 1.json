@@ -1,6 +1,6 @@
 {
   "searchObject": {
-    "id": "address.257191643304188",
+    "id": "address.2560845277710012",
     "type": "Feature",
     "place_type": [
       "address"
@@ -9,34 +9,40 @@
     "properties": {
       "accuracy": "rooftop"
     },
-    "text": "Sachsendamm",
-    "place_name": "Sachsendamm 4, 10829 Berlin, Germany",
+    "text": "Pyrmonter Straße",
+    "place_name": "Pyrmonter Straße 66a, 33699 Bielefeld, Germany",
     "center": [
-      13.354382,
-      52.478235
+      8.63837,
+      51.991062
     ],
     "geometry": {
       "type": "Point",
       "coordinates": [
-        13.354382,
-        52.478235
+        8.63837,
+        51.991062
       ]
     },
-    "address": "4",
+    "address": "66a",
     "context": [
       {
-        "id": "postcode.11601058872447130",
-        "text": "10829"
+        "id": "postcode.13989476935400070",
+        "text": "33699"
       },
       {
-        "id": "locality.11270859561531310",
-        "text": "Schöneberg"
+        "id": "locality.10945676934568160",
+        "wikidata": "Q2348419",
+        "text": "Stieghorst"
       },
       {
-        "id": "place.14094307404564380",
-        "short_code": "DE-BE",
-        "wikidata": "Q64",
-        "text": "Berlin"
+        "id": "place.14114130318808870",
+        "wikidata": "Q2112",
+        "text": "Bielefeld"
+      },
+      {
+        "id": "region.8359054768122700",
+        "short_code": "DE-NW",
+        "wikidata": "Q1198",
+        "text": "North Rhine-Westphalia"
       },
       {
         "id": "country.11437281100480410",

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch')
 const fs = require('fs')
+const place_name = ["","Pyrmonter Straße 66a, 33699 Bielefeld, Germany","","","","","","","","","","","","","","","","", ""]
 
 router.post('/', async function(req, res) {
     try {
@@ -10,12 +11,17 @@ router.post('/', async function(req, res) {
             if (err) throw err;
             let json = JSON.parse(data);
             result = json.searchObject
+            if(place_name[req.body.id] === result.place_name){
+                res.json({changed: false})
+                return
+            }
+            place_name[req.body.id] = result.place_name
             fetch('https://api.21re.de/v3/yields/query', {
                 method: 'POST',
                 headers: {
                     'accept': 'application/json',
                     'content-type': 'application/json',
-                    'authorization': 'Bearer FP14A204OJQ3TPUQ8A1GA4EFV6I1NRV8S50ODCT2IRO15JPA7M8GCB1R',
+                    'authorization': 'Bearer J5P9OA6Q9LDDTG0EA10B6S8NU1CQ6J7K9G8TE9D6RLJ4042Q2GAJR37F',
                     'Content-Type': 'application/json; charset=UTF-8'
                 },
                 body: JSON.stringify({
@@ -34,7 +40,7 @@ router.post('/', async function(req, res) {
                     if (data.code === 400) {
                         res.json({data: data.code})
                     } else {
-                        res.json({data: data})
+                        res.json({changed: true, data: data})
                     }
                 })
         })
