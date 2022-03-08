@@ -1,6 +1,6 @@
 {
   "searchObject": {
-    "id": "address.2560845277710012",
+    "id": "address.3873587722689434",
     "type": "Feature",
     "place_type": [
       "address"
@@ -9,40 +9,39 @@
     "properties": {
       "accuracy": "rooftop"
     },
-    "text": "Pyrmonter Straße",
-    "place_name": "Pyrmonter Straße 66a, 33699 Bielefeld, Germany",
+    "text": "Bermudastraße",
+    "place_name": "Bermudastraße 5, 26931 Elsfleth, Germany",
     "center": [
-      8.63837,
-      51.991062
+      8.452062,
+      53.243114
     ],
     "geometry": {
       "type": "Point",
       "coordinates": [
-        8.63837,
-        51.991062
+        8.452062,
+        53.243114
       ]
     },
-    "address": "66a",
+    "address": "5",
     "context": [
       {
-        "id": "postcode.13989476935400070",
-        "text": "33699"
+        "id": "postcode.18239948589609840",
+        "text": "26931"
       },
       {
-        "id": "locality.10945676934568160",
-        "wikidata": "Q2348419",
-        "text": "Stieghorst"
+        "id": "locality.169010650577130",
+        "text": "Watkenstraße"
       },
       {
-        "id": "place.14114130318808870",
-        "wikidata": "Q2112",
-        "text": "Bielefeld"
+        "id": "place.18410148551705500",
+        "wikidata": "Q509939",
+        "text": "Elsfleth"
       },
       {
-        "id": "region.8359054768122700",
-        "short_code": "DE-NW",
-        "wikidata": "Q1198",
-        "text": "North Rhine-Westphalia"
+        "id": "region.6397691837244140",
+        "short_code": "DE-NI",
+        "wikidata": "Q1197",
+        "text": "Lower Saxony"
       },
       {
         "id": "country.11437281100480410",

@@ -3,7 +3,6 @@ const router = express.Router();
 const fs = require('fs');
 
 router.post('/',  (req, res) => {
-    console.log(req.body)
     // if ((req.body.makro.length < 4) || (req.body.mikro.length < 4)) {
     //     res.send({message: "error"})
     // } else {
@@ -11,7 +10,7 @@ router.post('/',  (req, res) => {
         // fs.writeFileSync('searchResult2.json', data);
     try {
         fs.writeFileSync(`${req.body.id}.json`, data)
-        console.log('yeah')
+        res.json({test: true})
     } catch (err) {
         console.error(err)
     }

@@ -12,8 +12,9 @@ router.post('/location',  async function(req, res) {
         if (err) throw err;
         let json = JSON.parse(data);
         result = json.searchObject
+        console.log(place_name[req.body.id] === result.place_name)
         if(place_name[req.body.id] === result.place_name){
-            console.log("yep")
+            res.json({changed: false})
             return
         }
         place_name[req.body.id] = result.place_name
@@ -38,7 +39,7 @@ router.post('/location',  async function(req, res) {
         })
             .then((response) => response.json())
             .then((locData) => {
-                res.json({locData: locData})
+                res.json({changed: true, locData: locData})
             })
     })
 });
@@ -54,7 +55,7 @@ router.post('/unit', async function(req, res) {
             res.json({changed: false})
             return
         }
-        place_name[req.body.id] = result.place_name
+        // place_name[req.body.id] = result.place_name
         topics.map((topic) => {
             fetch('https://api.21re.de/v3/prices/unit', {
                 method: 'POST',
