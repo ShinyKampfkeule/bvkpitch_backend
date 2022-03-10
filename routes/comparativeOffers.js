@@ -40,9 +40,9 @@ router.post('/', async function(req, res) {
                         "offerType": "rent",
                         "objectType": "apartment",
                         "area": {"from": 40, "to": 90},
-                        "year": {"from": 1980, "to": 2030},
+                        "year": {"from": 1980, "to": 2050},
                         "rooms": {"from": 2, "to": 5},
-                        "offerDate": {"from": {"year": 2019, "quarter": 1}, "to": {"year": 2022, "quarter": 4}}
+                        "offerDate": {"from": {"year": 2019, "quarter": 1}, "to": {"year": 2052, "quarter": 4}}
                     })
                 })
                     .then((response) => response.json())

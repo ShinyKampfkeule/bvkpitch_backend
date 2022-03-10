@@ -1,42 +1,48 @@
 {
   "searchObject": {
-    "id": "address.257191643304188",
+    "id": "address.1673691461835294",
     "type": "Feature",
     "place_type": [
       "address"
     ],
-    "relevance": 1,
+    "relevance": 0.961538,
     "properties": {
       "accuracy": "rooftop"
     },
-    "text": "Sachsendamm",
-    "place_name": "Sachsendamm 4, 10829 Berlin, Germany",
+    "text": "Mehlenstraße",
+    "place_name": "Mehlenstraße 1, 97264 Helmstadt, Germany",
     "center": [
-      13.354382,
-      52.478235
+      9.671505,
+      49.759241
     ],
     "geometry": {
       "type": "Point",
       "coordinates": [
-        13.354382,
-        52.478235
+        9.671505,
+        49.759241
       ]
     },
-    "address": "4",
+    "address": "1",
     "context": [
       {
-        "id": "postcode.11601058872447130",
-        "text": "10829"
+        "id": "postcode.10259514053064090",
+        "text": "97264"
       },
       {
-        "id": "locality.11270859561531310",
-        "text": "Schöneberg"
+        "id": "locality.12071820817972780",
+        "wikidata": "Q38119145",
+        "text": "Holzkirchhausen"
       },
       {
-        "id": "place.14094307404564380",
-        "short_code": "DE-BE",
-        "wikidata": "Q64",
-        "text": "Berlin"
+        "id": "place.10259514052571300",
+        "wikidata": "Q504431",
+        "text": "Helmstadt"
+      },
+      {
+        "id": "region.7718916604336910",
+        "short_code": "DE-BY",
+        "wikidata": "Q980",
+        "text": "Bavaria"
       },
       {
         "id": "country.11437281100480410",

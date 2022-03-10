@@ -1,6 +1,6 @@
 {
   "searchObject": {
-    "id": "address.3873587722689434",
+    "id": "address.82118300447734",
     "type": "Feature",
     "place_type": [
       "address"
@@ -9,39 +9,34 @@
     "properties": {
       "accuracy": "rooftop"
     },
-    "text": "Bermudastraße",
-    "place_name": "Bermudastraße 5, 26931 Elsfleth, Germany",
+    "text": "Pechsteinstraße",
+    "place_name": "Pechsteinstraße 68, 12309 Berlin, Germany",
     "center": [
-      8.452062,
-      53.243114
+      13.415225,
+      52.388108
     ],
     "geometry": {
       "type": "Point",
       "coordinates": [
-        8.452062,
-        53.243114
+        13.415225,
+        52.388108
       ]
     },
-    "address": "5",
+    "address": "68",
     "context": [
       {
-        "id": "postcode.18239948589609840",
-        "text": "26931"
+        "id": "postcode.3451687127959340",
+        "text": "12309"
       },
       {
-        "id": "locality.169010650577130",
-        "text": "Watkenstraße"
+        "id": "locality.10725894294529020",
+        "text": "Lichtenrade"
       },
       {
-        "id": "place.18410148551705500",
-        "wikidata": "Q509939",
-        "text": "Elsfleth"
-      },
-      {
-        "id": "region.6397691837244140",
-        "short_code": "DE-NI",
-        "wikidata": "Q1197",
-        "text": "Lower Saxony"
+        "id": "place.14094307404564380",
+        "short_code": "DE-BE",
+        "wikidata": "Q64",
+        "text": "Berlin"
       },
       {
         "id": "country.11437281100480410",

@@ -44,6 +44,9 @@ router.post('/', async function(req, res) {
       })
           .then((response) => response.json())
           .then((data) => {
+            console.log('data:', data)
+            console.log('makro:', makro)
+            console.log('mikro:', mikro)
             res.json({changed: true, data: data, makro: makro, mikro: mikro})
           })
     })

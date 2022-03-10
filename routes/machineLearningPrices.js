@@ -39,12 +39,23 @@ router.post('/location',  async function(req, res) {
         })
             .then((response) => response.json())
             .then((locData) => {
+                console.log("Locdata: ", locData)
                 res.json({changed: true, locData: locData})
             })
     })
 });
 
 router.post('/unit', async function(req, res) {
+    // res.set({
+    //     "Content-Type": "text/event-stream",
+    //     "Cache-Control": "no-cache",
+    //     Connection: "keep-alive",
+    //
+    //     "Access-Control-Allow-Origin": "*",
+    //     "Access-Control-Allow-Headers":
+    //         "Origin, X-Requested-With, Content-Type, Accept",
+    // })
+
     let fullArray = []
     let result
     await fs.readFile(`${req.body.id}.json`, (err, data) => {
@@ -81,6 +92,7 @@ router.post('/unit', async function(req, res) {
                     let mlpObject = {key: topic, data: data}
                     fullArray.push(mlpObject)
                     if (fullArray.length === 6) {
+                        console.log('Fullarray: ', fullArray)
                         res.json({changed: true, unitData: fullArray})
                     }
                 })
