@@ -2,11 +2,19 @@ const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch')
 const fs = require('fs')
+const sequelize = require("../db");
+const Users = require('../postgres/User')
 
 const place_name = ["","Pyrmonter Straße 66a, 33699 Bielefeld, Germany","","","","","","","","","","","","","","","","", ""]
 
 router.post('/', async function(req, res) {
   try {
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+    const allusers = await Users.findAll({
+      attributes: ['id', 'name']
+    })
+    console.log("All users:", JSON.stringify(allusers, null, 2));
     let result
     let makro
     let mikro
@@ -43,10 +51,7 @@ router.post('/', async function(req, res) {
         })
       })
           .then((response) => response.json())
-          .then((data) => {
-            console.log('data:', data)
-            console.log('makro:', makro)
-            console.log('mikro:', mikro)
+          .then(async (data) => {
             res.json({changed: true, data: data, makro: makro, mikro: mikro})
           })
     })
