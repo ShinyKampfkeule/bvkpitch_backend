@@ -5,6 +5,8 @@ const fs = require('fs')
 const sequelize = require("../db");
 const Users = require('../postgres/User')
 const Address = require("../postgres/Address");
+const Macro = require("../postgres/Macro");
+const Micro = require("../postgres/Micro");
 
 const place_name = ["","","","","","","","","","","","","","","","","","", ""]
 
@@ -66,6 +68,14 @@ router.post('/', async function(req, res) {
             }
             await Address.update(dataToUpdate, {
               where: {user_id: req.body.id}
+            })
+
+            await makro.map( async (e) => {
+              await Macro.create({user_id: req.body.id, name: e.name, score: e.score})
+            })
+
+            await mikro.map( async (e) => {
+              await Micro.create({user_id: req.body.id, name: e.name, score: e.score})
             })
             res.json({changed: true, data: data, makro: makro, mikro: mikro})
           })

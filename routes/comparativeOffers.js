@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch')
 const fs = require('fs')
+const Compareable_Offers = require("../postgres/Compareable-Offers");
 
 const place_name = ["","Pyrmonter Straße 66a, 33699 Bielefeld, Germany","","","","","","","","","","","","","","","","", ""]
 
 router.post('/', async function(req, res) {
     try {
         let result
-        console.log(req.body)
         if(req.body.id !== undefined){
             await fs.readFile(`${req.body.id}.json`, (err, data) => {
                 if (err) throw err;
@@ -46,7 +46,19 @@ router.post('/', async function(req, res) {
                     })
                 })
                     .then((response) => response.json())
-                    .then((data) => {
+                    .then(async (data) => {
+                        const dataToUpdate = {
+                            offer_date: data.items[0].offerDate,
+                            sqm_price_cents: data.items[0].sqmPriceCents,
+                            build_year: data.items[0].buildYear,
+                            area: data.items[0].area,
+                            rooms: data.items[0].rooms,
+                            route: data.items[0].route,
+                            street_number: data.items[0].streetNumber
+                        }
+                        await Compareable_Offers.update(dataToUpdate, {
+                            where: {user_id: req.body.id}
+                        })
                         res.json({changed: true, data: data})
                     })
             })

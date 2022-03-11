@@ -30,5 +30,5 @@ const Market = sequelize.define('market_yield', {
     residential_neighborhood_min: {type: DataTypes.INTEGER},
     residential_neighborhood_max: {type: DataTypes.INTEGER},
     residential_neighborhood_avg: {type: DataTypes.INTEGER},
-})
+},{freezeTableName: true, updatedAt: false})
 Market.belongsTo(Users, {foreignKey: 'user_id', targetKey: 'id'})

@@ -33,8 +33,8 @@ exports.up = function(db) {
     locality: 'string',
     route: 'string',
     street_number: 'string',
-    loc_lat: 'int',
-    loc_lng: 'int'
+    loc_lat: 'float',
+    loc_lng: 'float'
   });
 };
 
