@@ -4,17 +4,21 @@ const fetch = require('node-fetch')
 const fs = require('fs')
 const sequelize = require("../db");
 const Users = require('../postgres/User')
+const Address = require("../postgres/Address");
 
-const place_name = ["","Pyrmonter Straße 66a, 33699 Bielefeld, Germany","","","","","","","","","","","","","","","","", ""]
+const place_name = ["","","","","","","","","","","","","","","","","","", ""]
+
+router.get('/', async (req, res) => {
+  await sequelize.authenticate();
+  console.log('Connection has been established successfully.');
+  const allusers = await Users.findAll({
+    attributes: ['id', 'name']
+  })
+  console.log("All users:", JSON.stringify(allusers, null, 2));
+})
 
 router.post('/', async function(req, res) {
   try {
-    await sequelize.authenticate();
-    console.log('Connection has been established successfully.');
-    const allusers = await Users.findAll({
-      attributes: ['id', 'name']
-    })
-    console.log("All users:", JSON.stringify(allusers, null, 2));
     let result
     let makro
     let mikro
@@ -52,6 +56,17 @@ router.post('/', async function(req, res) {
       })
           .then((response) => response.json())
           .then(async (data) => {
+            const dataToUpdate = {
+              postal_code: data.address.postalCode,
+              locality: data.address.locality,
+              route: data.address.route,
+              street_number: data.address.streetNumber,
+              loc_lat: data.address.location.lat,
+              loc_lng: data.address.location.lng
+            }
+            await Address.update(dataToUpdate, {
+              where: {user_id: req.body.id}
+            })
             res.json({changed: true, data: data, makro: makro, mikro: mikro})
           })
     })

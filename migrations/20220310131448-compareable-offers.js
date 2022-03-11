@@ -15,7 +15,7 @@ exports.setup = function(options, seedLink) {
 };
 
 exports.up = function(db) {
-  return db.createTable('compareable-offers', {
+  return db.createTable('compareable_offers', {
     user_id: {
       type: 'int',
       notNull: false,

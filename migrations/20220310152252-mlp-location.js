@@ -15,7 +15,7 @@ exports.setup = function(options, seedLink) {
 };
 
 exports.up = function(db) {
-  return db.createTable('mlp-location', {
+  return db.createTable('mlp_location', {
     user_id: {
       type: 'int',
       notNull: false,
