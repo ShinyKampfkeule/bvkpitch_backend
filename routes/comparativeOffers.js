@@ -4,7 +4,7 @@ const fetch = require('node-fetch')
 const fs = require('fs')
 const Compareable_Offers = require("../postgres/Compareable-Offers");
 
-const place_name = ["","Pyrmonter Straße 66a, 33699 Bielefeld, Germany","","","","","","","","","","","","","","","","", ""]
+const place_name = ["","","","","","","","","","","","","","","","","","", ""]
 
 router.post('/', async function(req, res) {
     try {
@@ -46,18 +46,22 @@ router.post('/', async function(req, res) {
                     })
                 })
                     .then((response) => response.json())
-                    .then(async (data) => {
-                        const dataToUpdate = {
-                            offer_date: data.items[0].offerDate,
-                            sqm_price_cents: data.items[0].sqmPriceCents,
-                            build_year: data.items[0].buildYear,
-                            area: data.items[0].area,
-                            rooms: data.items[0].rooms,
-                            route: data.items[0].route,
-                            street_number: data.items[0].streetNumber
-                        }
-                        await Compareable_Offers.update(dataToUpdate, {
+                    .then((data) => {
+                        Compareable_Offers.destroy({
                             where: {user_id: req.body.id}
+                        })
+                        data.items.map(async (e) => {
+                            const dataToUpdate = {
+                                user_id: req.body.id,
+                                offer_date: e.offerDate,
+                                sqm_price_cents: e.sqmPriceCents,
+                                build_year: e.buildYear,
+                                area: e.area,
+                                rooms: e.rooms,
+                                route: e.route,
+                                street_number: e.streetNumber
+                            }
+                            await Compareable_Offers.create(dataToUpdate)
                         })
                         res.json({changed: true, data: data})
                     })

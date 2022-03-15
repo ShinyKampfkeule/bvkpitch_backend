@@ -70,13 +70,22 @@ router.post('/', async function(req, res) {
               where: {user_id: req.body.id}
             })
 
+            await Macro.destroy({
+              where: {user_id: req.body.id}
+            })
+
+            await Micro.destroy({
+              where: {user_id: req.body.id}
+            })
+
             await makro.map( async (e) => {
-              await Macro.create({user_id: req.body.id, name: e.name, score: e.score})
+              await Macro.create({user_id: req.body.id, name: e.name, score: data.macro[e.name].score})
             })
 
             await mikro.map( async (e) => {
-              await Micro.create({user_id: req.body.id, name: e.name, score: e.score})
+              await Micro.create({user_id: req.body.id, name: e.name, score: data.micro[e.name].score})
             })
+
             res.json({changed: true, data: data, makro: makro, mikro: mikro})
           })
     })

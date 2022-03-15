@@ -10,7 +10,8 @@ const Compareable_Offers = sequelize.define('compareable_offers', {
     rooms: {type: DataTypes.INTEGER},
     route: {type: DataTypes.STRING},
     street_number: {type: DataTypes.STRING}
-}, {freezeTableName: true, updatedAt: false})
+}, {freezeTableName: true, updatedAt: false, createdAt: false})
 Compareable_Offers.belongsTo(Users, {foreignKey: 'user_id', targetKey: 'id'})
+Compareable_Offers.removeAttribute('id')
 
 module.exports = Compareable_Offers
