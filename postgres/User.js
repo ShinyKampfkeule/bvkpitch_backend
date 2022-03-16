@@ -3,7 +3,9 @@ const sequelize = require("../db");
 
 const Users = sequelize.define('users', {
     id: {type: DataTypes.INTEGER,autoIncrement: true, primaryKey: true },
-    name: {type: DataTypes.STRING}
+    name: {type: DataTypes.STRING},
+    socket_analysis: {type: DataTypes.STRING},
+    socket_search : {type: DataTypes.STRING}
 }, {freezeTableName: true, updatedAt: false, createdAt: false})
 
 module.exports = Users

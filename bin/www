@@ -51,9 +51,8 @@ io.on("connection", (socket) => {
       console.log(id)
       console.log(socket)
       console.log(cat)
-      testobj.id = id
       if(cat === 'search'){
-          testobj.socketSearch = socket
+          Users.update({socket_search: socket}, {where: {id: id}})
       }
   })
 
@@ -63,10 +62,16 @@ io.on("connection", (socket) => {
         console.log(id)
         console.log(cat)
         console.log(sid)
-        if(id === testobj.id && cat === 'analyse'){
-            testobj.socketAnalyse = sid
+        if(cat === 'analyse'){
+            Users.update({socket_analysis: sid}, {where: {id: id}})
         }
         socket.emit('init', await returnDBData(id))
+
+    })
+
+    socket.on('getTime', () => {
+        console.log('here')
+        returnDate(socket)
     })
 
 
@@ -81,8 +86,8 @@ io.on("connection", (socket) => {
         await setMarketYield(selectedAddress, id)
         await setMLPLocation(selectedAddress, id)
         await setMLPUnit(selectedAddress, id)
-        console.log(testobj)
-        socket.to(testobj.socketAnalyse).emit('init', await returnDBData(id))
+        const sockert = await Users.findOne({where: {id:id}})
+        socket.to(sockert.dataValues.socket_analysis).emit('init', await returnDBData(id))
     })
 
   // socket on address update
@@ -100,6 +105,15 @@ io.on("connection", (socket) => {
     await comp_offers(id, result)
   })
 })
+
+function returnDate(socket) {
+    setTimeout(function (){
+        const date = new Date().toLocaleString()
+        console.log(date)
+        socket.emit('setTime', date)
+        returnDate(socket)
+    }, 5000)
+}
 
 async function setAddress(selectedAddress, makroArray, mikroArray, id){
     const res = await fetch('https://api.21re.de/v3/scores', {
@@ -354,82 +368,41 @@ async function setMLPUnit(selectedAddress, id){
                 let mlpObject = {key: topic, data: data}
                 fullArray.push(mlpObject)
                 if (fullArray.length === 6) {
-                    let index_residential_house_sale = fullArray.findIndex(obj => {
-                        return obj.key === 'residential_house_sale'
-                    })
-                    let residential_apartment_rent = fullArray.findIndex(obj => {
-                        return obj.key === 'residential_apartment_rent'
-                    })
-                    let residential_apartment_sale = fullArray.findIndex(obj => {
-                        return obj.key === 'residential_apartment_sale'
-                    })
-                    let office = fullArray.findIndex(obj => {
-                        return obj.key === 'office'
-                    })
-                    let retail = fullArray.findIndex(obj => {
-                        return obj.key === 'retail'
-                    })
-                    let residential_house_rent = fullArray.findIndex(obj => {
-                        return obj.key === 'residential_house_rent'
-                    })
+                    const residential_house_sale = fullArray.find( ({key}) => key === 'residential-house-sale')
+
+                    const residential_apartment_rent = fullArray.find( ({key}) => key === 'residential-apartment-rent')
+
+                    const residential_apartment_sale = fullArray.find( ({key}) => key === 'residential-apartment-sale')
+                    const office = fullArray.find( ({key}) => key === 'office')
+                    const retail = fullArray.find( ({key}) => key === 'retail')
+                    const residential_house_rent = fullArray.find( ({key}) => key === 'residential-house-rent')
+
+                    console.log(fullArray)
+                    console.log(residential_house_sale)
+                    // console.log(index_residential_house_sale, residential_apartment_rent,residential_apartment_sale,office,retail,residential_house_rent)
 
                     const dataToUpdate = {
-                        residential_house_sale_min: index_residential_house_sale === -1
-                            ?fullArray[fullArray.length -1].data.min
-                            :fullArray[index_residential_house_sale].data.min,
-                        residential_house_sale_max: index_residential_house_sale === -1
-                            ?fullArray[fullArray.length -1].data.max
-                            :fullArray[index_residential_house_sale].data.max,
-                        residential_house_sale_avg: index_residential_house_sale === -1
-                            ?fullArray[fullArray.length -1].data.avg
-                            :fullArray[index_residential_house_sale].data.avg,
-                        residential_apartment_rent_min: residential_apartment_rent === -1
-                            ? fullArray[fullArray.length -1].data.min
-                            : fullArray[residential_apartment_rent].data.min,
-                        residential_apartment_rent_max: residential_apartment_rent === -1
-                            ? fullArray[fullArray.length -1].data.max
-                            : fullArray[residential_apartment_rent].data.max,
-                        residential_apartment_rent_avg: residential_apartment_rent === -1
-                            ? fullArray[fullArray.length -1].data.avg
-                            : fullArray[residential_apartment_rent].data.avg,
-                        residential_apartment_sale_min: residential_apartment_sale === -1
-                            ? fullArray[fullArray.length -1].data.min
-                            : fullArray[residential_apartment_sale].data.min,
-                        residential_apartment_sale_max: residential_apartment_sale === -1
-                            ? fullArray[fullArray.length -1].data.max
-                            : fullArray[residential_apartment_sale].data.max,
-                        residential_apartment_sale_avg: residential_apartment_sale === -1
-                            ? fullArray[fullArray.length -1].data.avg
-                            : fullArray[residential_apartment_sale].data.avg,
-                        office_min: office === -1
-                            ? fullArray[fullArray.length -1].data.min
-                            : fullArray[office].data.min,
-                        office_max: office === -1
-                            ? fullArray[fullArray.length -1].data.max
-                            : fullArray[office].data.max,
-                        office_avg: office === -1
-                            ? fullArray[fullArray.length -1].data.avg
-                            : fullArray[office].data.avg,
-                        retail_min: retail === -1
-                            ? fullArray[fullArray.length -1].data.min
-                            : fullArray[retail].data.min,
-                        retail_max: retail === -1
-                            ? fullArray[fullArray.length -1].data.max
-                            : fullArray[retail].data.max,
-                        retail_avg: retail === -1
-                            ? fullArray[fullArray.length -1].data.avg
-                            : fullArray[retail].data.avg,
-                        residential_house_rent_min: residential_house_rent === -1
-                            ? fullArray[fullArray.length -1].data.min
-                            : fullArray[residential_house_rent].data.min,
-                        residential_house_rent_max: residential_house_rent === -1
-                            ? fullArray[fullArray.length -1].data.max
-                            : fullArray[residential_house_rent].data.max,
-                        residential_house_rent_avg: residential_house_rent === -1
-                            ? fullArray[fullArray.length -1].data.avg
-                            : fullArray[residential_house_rent].data.avg,
+                        residential_house_sale_min: residential_house_sale.data.min,
+                        residential_house_sale_max: residential_house_sale.data.max,
+                        residential_house_sale_avg: residential_house_sale.data.avg,
+                        residential_apartment_rent_min: residential_apartment_rent.data.min,
+                        residential_apartment_rent_max: residential_apartment_rent.data.max,
+                        residential_apartment_rent_avg: residential_apartment_rent.data.avg,
+                        residential_apartment_sale_min: residential_apartment_sale.data.min,
+                        residential_apartment_sale_max: residential_apartment_sale.data.max,
+                        residential_apartment_sale_avg: residential_apartment_sale.data.avg,
+                        office_min: office.data.min,
+                        office_max: office.data.max,
+                        office_avg: office.data.avg,
+                        retail_min: retail.data.min,
+                        retail_max: retail.data.max,
+                        retail_avg: retail.data.avg,
+                        residential_house_rent_min: residential_house_rent.data.min,
+                        residential_house_rent_max: residential_house_rent.data.max,
+                        residential_house_rent_avg: residential_house_rent.data.avg,
                     }
 
+                    console.log(dataToUpdate)
 
                     await MLP_Unit.update(dataToUpdate, {
                         where: {user_id: id}
@@ -469,131 +442,6 @@ async function returnDBData(id){
     MarketData = MarketData[0].dataValues
 
     return {AddressData, CompareOffersArray, MacroDataArray, MicroDataArray, MLPLocationData, MLPUnitData, MarketData}
-}
-
-async function address_related(id, result){
-  Address.findAll({where:{user_id: id}}).then(async (data) => {
-      // console.log(Object.keys(data[0]))
-      if (data[0].dataValues.route === result.text) {
-        io.emit('getAddress', data)
-        const MicroData = await Micro.findAll({where: {user_id: id}})
-        const MacroData = await Macro.findAll({where: {user_id: id}})
-        io.emit('getMakro', MacroData)
-        io.emit('getMikro', MicroData)
-      } else {
-        let makro = json.makro
-        let mikro = json.mikro
-        fetch('https://api.21re.de/v3/scores', {
-          method: 'POST',
-          headers: {
-            'accept': 'application/json',
-            'content-type': 'application/json',
-            'authorization': 'Bearer J5P9OA6Q9LDDTG0EA10B6S8NU1CQ6J7K9G8TE9D6RLJ4042Q2GAJR37F',
-            'Content-Type': 'application/json; charset=UTF-8'
-          },
-          body: JSON.stringify({
-            "address": {
-              "country": `${result.context[3].short_code.toUpperCase()}`,
-              "locality": `${result.context[2].text}`,
-              "postalCode": `${result.context[0].text}`,
-              "route": `${result.text}`,
-              "streetNumber": `${result.address}`,
-              "location": {"lat": result.center[1], "lng": result.center[0]},
-            },
-            "macro": [`${makro[0].name}`, `${makro[1].name}`, `${makro[2].name}`, `${makro[3].name}`],
-            "micro": [`${mikro[0].name}`, `${mikro[1].name}`, `${mikro[2].name}`, `${mikro[3].name}`]
-          })
-        })
-            .then((response) => response.json())
-            .then(async (data) => {
-              const dataToUpdate = {
-                postal_code: data.address.postalCode,
-                locality: data.address.locality,
-                route: data.address.route,
-                street_number: data.address.streetNumber,
-                loc_lat: data.address.location.lat,
-                loc_lng: data.address.location.lng
-              }
-              await Address.update(dataToUpdate, {
-                where: {user_id: id}
-              })
-
-              await Macro.destroy({
-                where: {user_id: id}
-              })
-
-              await Micro.destroy({
-                where: {user_id: id}
-              })
-
-              await makro.map(async (e) => {
-                await Macro.create({user_id: id, name: e.name, score: data.macro[e.name].score})
-              })
-
-              await mikro.map(async (e) => {
-                await Micro.create({user_id: id, name: e.name, score: data.micro[e.name].score})
-              })
-              io.emit('getAddress', data)
-              const MicroData = await Micro.findAll({where: {user_id: id}})
-              const MacroData = await Macro.findAll({where: {user_id: id}})
-              io.emit('getMakro', MacroData)
-              io.emit('getMikro', MicroData)
-              // res.json({changed: true, data: data, makro: makro, mikro: mikro})
-            })
-      }
-    })
-}
-
-async function comp_offers(id, result){
-  if(id !== undefined){
-      fetch('https://api.21re.de/v3/comparables/query', {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'content-type': 'application/json',
-          'authorization': 'Bearer J5P9OA6Q9LDDTG0EA10B6S8NU1CQ6J7K9G8TE9D6RLJ4042Q2GAJR37F',
-          'Content-Type': 'application/json; charset=UTF-8'
-        },
-        body: JSON.stringify({
-          "address": {
-            "country": `${result.context[3].short_code.toUpperCase()}`,
-            "locality": `${result.context[2].text}`,
-            "postalCode": `${result.context[0].text}`,
-            "route": `${result.text}`,
-            "streetNumber": `${result.address}`,
-            "location": {"lat": result.center[1], "lng": result.center[0]},
-          },
-          "radius": 50000,
-          "offerType": "rent",
-          "objectType": "apartment",
-          "area": {"from": 40, "to": 90},
-          "year": {"from": 1980, "to": 2050},
-          "rooms": {"from": 2, "to": 5},
-          "offerDate": {"from": {"year": 2019, "quarter": 1}, "to": {"year": 2052, "quarter": 4}}
-        })
-      })
-          .then((response) => response.json())
-          .then(async (data) => {
-            Compareable_Offers.destroy({
-              where: {user_id: id}
-            })
-            data.items.map(async (e) => {
-              const dataToUpdate = {
-                user_id: id,
-                offer_date: e.offerDate,
-                sqm_price_cents: e.sqmPriceCents,
-                build_year: e.buildYear,
-                area: e.area,
-                rooms: e.rooms,
-                route: e.route,
-                street_number: e.streetNumber
-              }
-              await Compareable_Offers.create(dataToUpdate)
-            })
-            const res = await Compareable_Offers.findAll({where: {user_id: id}})
-            io.emit('compareable_offers', res)
-          })
-  }
 }
 
 /**
