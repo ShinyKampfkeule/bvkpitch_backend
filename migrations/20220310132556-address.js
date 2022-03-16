@@ -27,7 +27,7 @@ exports.up = function(db) {
           onDelete: 'CASCADE',
           onUpdate: 'RESTRICT'
         }
-      }
+      }, primaryKey:true
     },
     postal_code: 'string',
     locality: 'string',

@@ -81,29 +81,19 @@ io.on("connection", (socket) => {
         // console.log(makroArray)
         // console.log(mikroArray)
         // console.log(id)
-        await setAddress(selectedAddress, makroArray, mikroArray, id)
-        await setCompareOffers(selectedAddress, id)
-        await setMarketYield(selectedAddress, id)
-        await setMLPLocation(selectedAddress, id)
-        await setMLPUnit(selectedAddress, id)
+        const [AddressData, MacroDataArray, MicroDataArray]  = await setAddress(selectedAddress, makroArray, mikroArray, id)
+        const CompareOffersArray = await setCompareOffers(selectedAddress, id)
+        const MarketData = await setMarketYield(selectedAddress, id)
+        const MLPLocationData = await setMLPLocation(selectedAddress, id)
+        const MLPUnitData = await setMLPUnit(selectedAddress, id)
         const sockert = await Users.findOne({where: {id:id}})
-        socket.to(sockert.dataValues.socket_analysis).emit('init', await returnDBData(id))
+        // console.log('TEST: ', address, macro ,micro, compareable, market, mlpLocation, mlpUnit)
+        await socket.to(sockert.dataValues.socket_analysis).emit('init', {AddressData, CompareOffersArray, MacroDataArray, MicroDataArray, MLPLocationData, MLPUnitData, MarketData})
     })
 
   // socket on address update
   // fetch api 21 re safe to database
   // get data from Database and emit it to id
-
-  socket.on('Address', async (id) => {
-    let result
-    await fs.readFile(`${id}.json`, async (err, jsonData) => {
-      if (err) throw err;
-      let json = JSON.parse(jsonData);
-      result = json.searchObject
-    })
-    await address_related(id, result)
-    await comp_offers(id, result)
-  })
 })
 
 function returnDate(socket) {
@@ -141,6 +131,7 @@ async function setAddress(selectedAddress, makroArray, mikroArray, id){
         const data = await res.json()
 
         const dataToUpdate = {
+            user_id: id,
             postal_code: data.address.postalCode,
             locality: data.address.locality,
             route: data.address.route,
@@ -148,9 +139,12 @@ async function setAddress(selectedAddress, makroArray, mikroArray, id){
             loc_lat: data.address.location.lat,
             loc_lng: data.address.location.lng
         }
-        await Address.update(dataToUpdate, {
-            where: {user_id: id}
-        })
+        const [address, created] = await Address.upsert(dataToUpdate)
+
+        const final = address.dataValues
+
+        let MacroArray = []
+        let MicroArray = []
 
         await Macro.destroy({
             where: {user_id: id}
@@ -161,13 +155,16 @@ async function setAddress(selectedAddress, makroArray, mikroArray, id){
         })
 
         await makroArray.map( async (e) => {
-            await Macro.create({user_id: id, name: e.de, score: data.macro[e.name].score})
+            const macro = await Macro.create({user_id: id, name: e.de, score: data.macro[e.name].score})
+            MacroArray.push(macro.dataValues)
         })
 
         await mikroArray.map( async (e) => {
-            await Micro.create({user_id: id, name: e.de, score: data.micro[e.name].score})
+            const micro = await Micro.create({user_id: id, name: e.de, score: data.micro[e.name].score})
+            MicroArray.push(micro.dataValues)
         })
-        console.log('done')
+
+        return [final , MacroArray, MicroArray]
     }
 }
 
@@ -199,6 +196,7 @@ async function setCompareOffers(selectedAddress, id){
         })
     })
     if(res.status === 200){
+        let compareableOffersArray = []
         const data = await res.json()
 
         await Compareable_Offers.destroy({
@@ -215,8 +213,10 @@ async function setCompareOffers(selectedAddress, id){
                 route: e.route,
                 street_number: e.streetNumber
             }
-            await Compareable_Offers.create(dataToUpdate)
+            const res = await Compareable_Offers.create(dataToUpdate)
+            compareableOffersArray.push(res.dataValues)
         })
+        return compareableOffersArray
     }
 }
 
@@ -247,12 +247,13 @@ async function setMarketYield(selectedAddress, id){
             console.log('error')
         } else {
             const dataToUpdate = {
+                user_id: id,
                 office_city_top_min: data['office']['cityTop'].min,
                 office_city_top_max: data['office']['cityTop'].max,
                 office_city_top_avg: data['office']['cityTop'].avg,
                 office_city_min: data['office']['city'].min,
                 office_city_max: data['office']['cityTop'].max,
-                office_city_avg: data['office']['cityTop'].avg,
+                office_city_avg: data['office']['city'].avg,
                 office_neighborhood_min: data['office']['neighborhood'].min,
                 office_neighborhood_max: data['office']['neighborhood'].max,
                 office_neighborhood_avg: data['office']['neighborhood'].avg,
@@ -275,9 +276,8 @@ async function setMarketYield(selectedAddress, id){
                 residential_neighborhood_max: data['residential']['neighborhood'].max,
                 residential_neighborhood_avg: data['residential']['neighborhood'].avg,
             }
-            await Market.update(dataToUpdate, {
-                where: {user_id: id}
-            })
+            const [market, created] = await Market.upsert(dataToUpdate)
+            return market.dataValues
         }
     }
 }
@@ -307,6 +307,7 @@ async function setMLPLocation(selectedAddress, id) {
         const locData = await res.json()
 
         const dataToUpdate = {
+            user_id: id,
             residential_rent_micro_min: locData['residentialRent'].micro.min,
             residential_rent_micro_max: locData['residentialRent'].micro.max,
             residential_rent_micro_avg: locData['residentialRent'].micro.avg,
@@ -332,9 +333,8 @@ async function setMLPLocation(selectedAddress, id) {
             retail_macro_max: locData['retail'].macro.max,
             retail_macro_avg: locData['retail'].macro.avg,
         }
-        await MLP_Location.update(dataToUpdate, {
-            where: {user_id: id}
-        })
+        const [mlp_location, created] = await MLP_Location.upsert(dataToUpdate)
+        return mlp_location.dataValues
     }
 }
 
@@ -342,7 +342,7 @@ async function setMLPUnit(selectedAddress, id){
     let topics = ["residential-apartment-rent", "residential-apartment-sale", "residential-house-rent", "residential-house-sale", "office", "retail"]
     let fullArray = []
 
-    topics.map(async (topic) => {
+    for(let i = 0; i < topics.length; i++){
         const res = await fetch('https://api.21re.de/v3/prices/unit', {
             method: 'POST',
             headers: {
@@ -359,57 +359,51 @@ async function setMLPUnit(selectedAddress, id){
                     "route": `${selectedAddress.text}`,
                     "streetNumber": `${selectedAddress.address}`,
                     "location": {"lat": selectedAddress.center[1], "lng": selectedAddress.center[0]},
-                }, "unitType": `${topic}`, "constructionYear": 2022, "area": 80, "exclusiveness": "standard"
+                }, "unitType": `${topics[i]}`, "constructionYear": 2022, "area": 80, "exclusiveness": "standard"
             })
         })
-            if (res.status === 200){
-                const data = await res.json()
+        if (res.status === 200){
+            const data = await res.json()
+            fullArray.push({key: topics[i], data: data})
+        }
+    }
+    if(fullArray.length === 6) {
+        const residential_house_sale = fullArray.find( ({key}) => key === 'residential-house-sale')
 
-                let mlpObject = {key: topic, data: data}
-                fullArray.push(mlpObject)
-                if (fullArray.length === 6) {
-                    const residential_house_sale = fullArray.find( ({key}) => key === 'residential-house-sale')
+        const residential_apartment_rent = fullArray.find( ({key}) => key === 'residential-apartment-rent')
 
-                    const residential_apartment_rent = fullArray.find( ({key}) => key === 'residential-apartment-rent')
+        const residential_apartment_sale = fullArray.find( ({key}) => key === 'residential-apartment-sale')
+        const office = fullArray.find( ({key}) => key === 'office')
+        const retail = fullArray.find( ({key}) => key === 'retail')
+        const residential_house_rent = fullArray.find( ({key}) => key === 'residential-house-rent')
 
-                    const residential_apartment_sale = fullArray.find( ({key}) => key === 'residential-apartment-sale')
-                    const office = fullArray.find( ({key}) => key === 'office')
-                    const retail = fullArray.find( ({key}) => key === 'retail')
-                    const residential_house_rent = fullArray.find( ({key}) => key === 'residential-house-rent')
 
-                    console.log(fullArray)
-                    console.log(residential_house_sale)
-                    // console.log(index_residential_house_sale, residential_apartment_rent,residential_apartment_sale,office,retail,residential_house_rent)
+        const dataToUpdate = {
+            user_id: id,
+            residential_house_sale_min: residential_house_sale.data.min,
+            residential_house_sale_max: residential_house_sale.data.max,
+            residential_house_sale_avg: residential_house_sale.data.avg,
+            residential_apartment_rent_min: residential_apartment_rent.data.min,
+            residential_apartment_rent_max: residential_apartment_rent.data.max,
+            residential_apartment_rent_avg: residential_apartment_rent.data.avg,
+            residential_apartment_sale_min: residential_apartment_sale.data.min,
+            residential_apartment_sale_max: residential_apartment_sale.data.max,
+            residential_apartment_sale_avg: residential_apartment_sale.data.avg,
+            office_min: office.data.min,
+            office_max: office.data.max,
+            office_avg: office.data.avg,
+            retail_min: retail.data.min,
+            retail_max: retail.data.max,
+            retail_avg: retail.data.avg,
+            residential_house_rent_min: residential_house_rent.data.min,
+            residential_house_rent_max: residential_house_rent.data.max,
+            residential_house_rent_avg: residential_house_rent.data.avg,
+        }
 
-                    const dataToUpdate = {
-                        residential_house_sale_min: residential_house_sale.data.min,
-                        residential_house_sale_max: residential_house_sale.data.max,
-                        residential_house_sale_avg: residential_house_sale.data.avg,
-                        residential_apartment_rent_min: residential_apartment_rent.data.min,
-                        residential_apartment_rent_max: residential_apartment_rent.data.max,
-                        residential_apartment_rent_avg: residential_apartment_rent.data.avg,
-                        residential_apartment_sale_min: residential_apartment_sale.data.min,
-                        residential_apartment_sale_max: residential_apartment_sale.data.max,
-                        residential_apartment_sale_avg: residential_apartment_sale.data.avg,
-                        office_min: office.data.min,
-                        office_max: office.data.max,
-                        office_avg: office.data.avg,
-                        retail_min: retail.data.min,
-                        retail_max: retail.data.max,
-                        retail_avg: retail.data.avg,
-                        residential_house_rent_min: residential_house_rent.data.min,
-                        residential_house_rent_max: residential_house_rent.data.max,
-                        residential_house_rent_avg: residential_house_rent.data.avg,
-                    }
+        const [mlp_unit, created] = await MLP_Unit.upsert(dataToUpdate)
+        return mlp_unit.dataValues
+    }
 
-                    console.log(dataToUpdate)
-
-                    await MLP_Unit.update(dataToUpdate, {
-                        where: {user_id: id}
-                    })
-                }
-            }
-    })
 }
 
 async function returnDBData(id){
@@ -424,6 +418,7 @@ async function returnDBData(id){
     let MicroDataArray = []
     let MacroDataArray = []
     let CompareOffersArray = []
+    let testMLP
     MicroData.map(e => {
         MicroDataArray.push(e.dataValues)
     })
@@ -436,10 +431,18 @@ async function returnDBData(id){
         CompareOffersArray.push(e.dataValues)
     })
 
-    AddressData = AddressData[0].dataValues
-    MLPLocationData = MLPLocationData[0].dataValues
-    MLPUnitData = MLPUnitData[0].dataValues
-    MarketData = MarketData[0].dataValues
+    if(AddressData[0] !== undefined){
+        AddressData = AddressData[0].dataValues
+    }
+    if(MLPUnitData[0] !== undefined){
+        MLPUnitData = MLPUnitData[0].dataValues
+    }
+    if(MLPLocationData[0] !== undefined){
+        MLPLocationData = MLPLocationData[0].dataValues
+    }
+    if(MarketData[0] !== undefined){
+        MarketData = MarketData[0].dataValues
+    }
 
     return {AddressData, CompareOffersArray, MacroDataArray, MicroDataArray, MLPLocationData, MLPUnitData, MarketData}
 }

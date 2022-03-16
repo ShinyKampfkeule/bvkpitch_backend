@@ -3,6 +3,7 @@ const sequelize = require("../db");
 const Users = require("./User");
 
 const Market = sequelize.define('market_yield', {
+    user_id: {type: DataTypes.INTEGER, primaryKey: true},
     office_city_top_min: {type: DataTypes.FLOAT},
     office_city_top_max: {type: DataTypes.FLOAT},
     office_city_top_avg: {type: DataTypes.FLOAT},

@@ -27,7 +27,7 @@ exports.up = function(db) {
           onDelete: 'CASCADE',
           onUpdate: 'RESTRICT'
         }
-      }
+      }, primaryKey:true
     },
     residential_rent_micro_min: 'float',
     residential_rent_micro_max: 'float',

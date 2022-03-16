@@ -27,7 +27,7 @@ exports.up = function(db) {
           onDelete: 'CASCADE',
           onUpdate: 'RESTRICT'
         }
-      }
+      }, primaryKey: true
     },
     residential_house_sale_min: 'float',
     residential_house_sale_max: 'float',

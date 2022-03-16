@@ -27,7 +27,7 @@ exports.up = function(db) {
           onDelete: 'CASCADE',
           onUpdate: 'RESTRICT'
         }
-      }
+      }, primaryKey: true
     },
     office_city_top_min: 'float',
     office_city_top_max: 'float',

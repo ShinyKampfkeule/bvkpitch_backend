@@ -3,6 +3,7 @@ const sequelize = require('../db')
 const Users = require('./User')
 
 const MLP_Location = sequelize.define('mlp_location', {
+    user_id: {type: DataTypes.INTEGER, primaryKey: true},
     residential_rent_micro_min: {type: DataTypes.FLOAT},
     residential_rent_micro_max: {type: DataTypes.FLOAT},
     residential_rent_micro_avg: {type: DataTypes.FLOAT},

@@ -3,6 +3,7 @@ const sequelize = require("../db");
 const Users = require("./User");
 
 const Address = sequelize.define('address', {
+    user_id: {type: DataTypes.INTEGER, primaryKey: true},
     postal_code: {type: DataTypes.STRING},
     locality: {type: DataTypes.STRING},
     route: {type: DataTypes.STRING},
