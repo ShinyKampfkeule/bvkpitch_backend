@@ -70,7 +70,6 @@ io.on("connection", (socket) => {
     })
 
     socket.on('getTime', () => {
-        console.log('here')
         returnDate(socket)
     })
 
@@ -86,8 +85,11 @@ io.on("connection", (socket) => {
         const MarketData = await setMarketYield(selectedAddress, id)
         const MLPLocationData = await setMLPLocation(selectedAddress, id)
         const MLPUnitData = await setMLPUnit(selectedAddress, id)
-        const sockert = await Users.findOne({where: {id:id}})
+        const sockert = await Users.findOne({where: {id: id}})
+        console.log(sockert.dataValues)
         // console.log('TEST: ', address, macro ,micro, compareable, market, mlpLocation, mlpUnit)
+        let test = false
+        await done(socket, sockert)
         await socket.to(sockert.dataValues.socket_analysis).emit('init', {AddressData, CompareOffersArray, MacroDataArray, MicroDataArray, MLPLocationData, MLPUnitData, MarketData})
     })
 
@@ -96,10 +98,15 @@ io.on("connection", (socket) => {
   // get data from Database and emit it to id
 })
 
+async function done(socket, sockert){
+    console.log('TEST')
+    let test = false
+    socket.emit('searchComplete', test)
+}
+
 function returnDate(socket) {
     setTimeout(function (){
         const date = new Date().toLocaleString()
-        console.log(date)
         socket.emit('setTime', date)
         returnDate(socket)
     }, 5000)
