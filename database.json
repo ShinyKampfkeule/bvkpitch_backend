@@ -1,10 +1,12 @@
 {
   "dev": {
-    "host": "localhost",
+    "host": {
+      "ENV": "DB_HOST"
+    },
     "user": "postgres",
     "password": "changeme",
-    "database": "bvkpitch",
-    "port": 5432,
+    "database": "postgres",
+    "port": 5433,
     "driver": "pg"
   }
 }

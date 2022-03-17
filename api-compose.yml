@@ -1,13 +1,66 @@
 version: "3"
 
 services:
-  api:
-    image: docker.io/library/bvkpitchapi
+  postgres-bvk:
+    container_name: postgres-bvk_container
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      PGDATA: /data/postgres
+    volumes:
+      - bvkpostgres:/data/postgres
+    expose:
+      - 5433
     ports:
-      - "3001:3001"
+      - "5433:5433"
     networks:
       - bvkpitch
+    restart: unless-stopped
+    command: -p 5433
+
+  pgadmin-bvk:
+    container_name: pgadmin-bvk_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - bvkpgadmin:/var/lib/pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5051}:80"
+    networks:
+      - bvkpitch
+    restart: unless-stopped
+
+  bvkpitch-api:
+    image: docker.io/library/bvkpitchapi
+    restart: always
+    container_name: bvkpitchapi
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+    networks:
+      - bvkpitch
+      - web
+    labels:
+      - traefik.http.routers.bvkpitch-api.rule=Host(`api.bvk-pitch.boltzmannbrain.club`)
+      - traefik.http.routers.bvkpitch-api.tls=true
+      - traefik.http.routers.bvkpitch-api.tls.certresolver=lets-encrypt
+      - traefik.port=3001
+    depends_on:
+      - postgres-bvk
 
 networks:
   bvkpitch:
     external: true
+  postgres:
+    external: true
+  web:
+    external: true
+
+volumes:
+  bvkpostgres:
+  bvkpgadmin:

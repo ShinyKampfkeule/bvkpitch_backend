@@ -88,7 +88,7 @@ io.on("connection", (socket) => {
         const sockert = await Users.findOne({where: {id: id}})
         console.log(sockert.dataValues)
         // console.log('TEST: ', address, macro ,micro, compareable, market, mlpLocation, mlpUnit)
-        let test = false
+        console.log('MARKET: ', MarketData)
         await done(socket, sockert)
         await socket.to(sockert.dataValues.socket_analysis).emit('init', {AddressData, CompareOffersArray, MacroDataArray, MicroDataArray, MLPLocationData, MLPUnitData, MarketData})
     })
@@ -249,10 +249,8 @@ async function setMarketYield(selectedAddress, id){
     })
     if(res.status === 200){
         const data = await res.json()
+        console.log(data)
 
-        if (data.code === 400) {
-            console.log('error')
-        } else {
             const dataToUpdate = {
                 user_id: id,
                 office_city_top_min: data['office']['cityTop'].min,
@@ -286,6 +284,39 @@ async function setMarketYield(selectedAddress, id){
             const [market, created] = await Market.upsert(dataToUpdate)
             return market.dataValues
         }
+    if(res.status === 400){
+        const dataToUpdate = {
+            user_id: id,
+            office_city_top_min: null,
+            office_city_top_max: null,
+            office_city_top_avg: null,
+            office_city_min: null,
+            office_city_max: null,
+            office_city_avg: null,
+            office_neighborhood_min: null,
+            office_neighborhood_max: null,
+            office_neighborhood_avg: null,
+            retail_city_top_min: null,
+            retail_city_top_max: null,
+            retail_city_top_avg: null,
+            retail_city_min: null,
+            retail_city_max: null,
+            retail_city_avg: null,
+            retail_neighborhood_min: null,
+            retail_neighborhood_max: null,
+            retail_neighborhood_avg: null,
+            residential_city_top_min: null,
+            residential_city_top_max: null,
+            residential_city_top_avg: null,
+            residential_city_min: null,
+            residential_city_max: null,
+            residential_city_avg: null,
+            residential_neighborhood_min: null,
+            residential_neighborhood_max: null,
+            residential_neighborhood_avg: null,
+        }
+        const [market, created] = await Market.upsert(dataToUpdate)
+        return market.dataValues
     }
 }
 

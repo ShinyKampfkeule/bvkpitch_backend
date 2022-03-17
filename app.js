@@ -11,21 +11,12 @@ const comparitiveRouter = require('./routes/comparativeOffers');
 const searchRouter = require('./routes/getSearch');
 const yieldsRouter = require('./routes/marketYields');
 const mlpRouter = require('./routes/machineLearningPrices');
-const Users = require("./postgres/User");
+const initDB = require("./initDB");
+
+
+initDB()
 
 var app = express();
-
-const usersArray = [
-    {id: 2, name: 'Test'},
-    {id: 3, name: 'Test1'},
-    {id: 4, name: 'Test2'},
-    {id: 5, name: 'Test3'},
-    {id: 6, name: 'Test4'},
-]
-
-Users.bulkCreate( usersArray, {
-    ignoreDuplicates: true
-})
 
 app.use(compression())
 app.use(logger('dev'));
