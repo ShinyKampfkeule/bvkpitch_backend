@@ -18,6 +18,10 @@ const Compareable_Offers = require("../postgres/Compareable-Offers");
 const MLP_Location = require("../postgres/MLP_Location");
 const MLP_Unit = require("../postgres/MLP_Unit");
 const Market = require("../postgres/Market");
+const jwt = require('jsonwebtoken');
+const crypto = require("crypto");
+const Seat = require("../postgres/Seat");
+const SearchTracker = require("../postgres/SearchTracker");
 
 /**
  * Get port from environment and store in Express.
@@ -38,59 +42,99 @@ const io = socketIO(server,{
     }
 })
 
-const testobj = {
-    id: "",
-    socketAnalyse: "",
-    socketSearch: ""
+const searchIO = io.of('/search')
+
+searchIO.use((socket, next) => {
+    if (socket.handshake.query && socket.handshake.query.token){
+        jwt.verify(socket.handshake.query.token, 'SECRET_KEY', (err, decoded) => {
+            if (err) {
+                console.log("failed")
+                return next(new Error('Authentication error'))
+            }
+            socket.decoded = decoded
+            next()
+        })
+    }
+    else {
+        next(new Error('Authentication error'))
+    }
+})
+
+const getHashedPassword = (password) => {
+    const sha256 = crypto.createHash('sha256')
+    return sha256.update(password).digest('base64')
 }
 
-io.on("connection", (socket) => {
-  console.log("New client connected" + socket.id);
+searchIO.on('connection', (socket) => {
+    // console.log("Auth Connection " + socket.id)
 
-  socket.on('testConn', (id,socket, cat) => {
-      console.log(id)
-      console.log(socket)
-      console.log(cat)
-      if(cat === 'search'){
-          Users.update({socket_search: socket}, {where: {id: id}})
-      }
-  })
-
-  // socket on init
-  // get date from Database and emit it to id
-    socket.on('init', async (id, sid, cat) => {
-        console.log(id)
-        console.log(cat)
-        console.log(sid)
-        if(cat === 'analyse'){
-            Users.update({socket_analysis: sid}, {where: {id: id}})
+    socket.on('testConn', (id,socket, cat) => {
+        if(cat === 'search'){
+            Users.update({socket_search: socket}, {where: {id: id}})
         }
-        socket.emit('init', await returnDBData(id))
-
     })
-
-    socket.on('getTime', () => {
-        returnDate(socket)
-    })
-
-
 
     socket.on('search', async (selectedAddress, makroArray, mikroArray, id) => {
-        // console.log(selectedAddress)
-        // console.log(makroArray)
-        // console.log(mikroArray)
-        // console.log(id)
         const [AddressData, MacroDataArray, MicroDataArray]  = await setAddress(selectedAddress, makroArray, mikroArray, id)
         const CompareOffersArray = await setCompareOffers(selectedAddress, id)
         const MarketData = await setMarketYield(selectedAddress, id)
         const MLPLocationData = await setMLPLocation(selectedAddress, id)
         const MLPUnitData = await setMLPUnit(selectedAddress, id)
         const sockert = await Users.findOne({where: {id: id}})
-        console.log(sockert.dataValues)
-        // console.log('TEST: ', address, macro ,micro, compareable, market, mlpLocation, mlpUnit)
-        console.log('MARKET: ', MarketData)
+        const seatplace = await Seat.findOne({where:{id: sockert.dataValues.seatplace}})
+        await test(seatplace.dataValues.socket, AddressData, CompareOffersArray, MacroDataArray, MicroDataArray, MLPLocationData, MLPUnitData, MarketData)
         await done(socket, sockert)
-        await socket.to(sockert.dataValues.socket_analysis).emit('init', {AddressData, CompareOffersArray, MacroDataArray, MicroDataArray, MLPLocationData, MLPUnitData, MarketData})
+    })
+})
+
+const test = async (seatplace, AddressData, CompareOffersArray, MacroDataArray, MicroDataArray, MLPLocationData, MLPUnitData, MarketData) => {
+    await analysisSocket.to(seatplace).emit('init', {AddressData, CompareOffersArray, MacroDataArray, MicroDataArray, MLPLocationData, MLPUnitData, MarketData})
+}
+
+let analysisSocket
+
+io.on("connection", (socket) => {
+  console.log("New client connected" + socket.id);
+
+    analysisSocket = socket
+
+    socket.on('login', async (username, password) => {
+        const hashed_password = getHashedPassword(password)
+        if (username && hashed_password) {
+            const results = await Users.findOne({where:{username: username}})
+            if (results.dataValues !== null) {
+                if(results.dataValues.password !== hashed_password){
+                    return socket.emit('auth', {auth: false, token: false, result: 'Incorrect Username or Password. Try again!'})
+                }
+                const id = results.dataValues.id
+                const token = jwt.sign({id}, 'SECRET_KEY', {
+                    expiresIn: 1200,
+                })
+                // request.session.user = results
+
+                socket.emit('auth', {auth: true, token: token, result: results.dataValues})
+            } else {
+                socket.emit('auth', {auth: false, token: false, result: 'Incorrect Username or Password. Try again!'})
+            }
+        } else {
+            socket.emit('auth', {auth: false, token: false, result: 'no user exists'})
+        }
+    })
+
+    socket.on('init', async (id, sid, cat) => {
+        if(cat === 'analyse'){
+            await Seat.upsert({socket: sid, id: id})
+        }
+        const userData = await Users.findOne({where:{seatplace:id}})
+        console.log(userData)
+        if(userData !== null){
+            socket.emit('init', await returnDBData(userData.dataValues.id))
+        }
+
+    })
+
+    socket.on('getTime', () => {
+        returnDate(socket)
     })
 
   // socket on address update
@@ -99,7 +143,6 @@ io.on("connection", (socket) => {
 })
 
 async function done(socket, sockert){
-    console.log('TEST')
     let test = false
     socket.emit('searchComplete', test)
 }
@@ -146,6 +189,19 @@ async function setAddress(selectedAddress, makroArray, mikroArray, id){
             loc_lat: data.address.location.lat,
             loc_lng: data.address.location.lng
         }
+
+        const trackerData = {
+            user_id: id,
+            postal_code: data.address.postalCode,
+            locality: data.address.locality,
+            route: data.address.route,
+            street_number: data.address.streetNumber,
+            loc_lat: data.address.location.lat,
+            loc_lng: data.address.location.lng,
+            date: new Date().toISOString()
+        }
+
+        SearchTracker.create(trackerData)
         const [address, created] = await Address.upsert(dataToUpdate)
 
         const final = address.dataValues

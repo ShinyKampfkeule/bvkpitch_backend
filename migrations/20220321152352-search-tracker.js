@@ -15,30 +15,32 @@ exports.setup = function(options, seedLink) {
 };
 
 exports.up = function(db) {
-  return db.createTable('users', {
-    id: {type: 'int', primaryKey:true, autoIncrement:true},
-    name: {type: 'string'},
-    socket_analysis: {type: 'string'},
-    socket_search : {type: 'string'},
-    username: {type: 'string'},
-    password: {type: 'string', length: 255},
-    seatplace: {
-      type: 'string',
+  return db.createTable('search_tracker', {
+    user_id: {
+      type: 'int',
+      notNull: false,
       foreignKey: {
-        name: 'socket_id_fk',
-        table: 'sockets',
+        name: 'user_id_fk',
+        table: 'users',
         mapping: 'id',
         rules: {
           onDelete: 'CASCADE',
           onUpdate: 'RESTRICT'
         }
       }
-    }
+    },
+    postal_code: 'string',
+    locality: 'string',
+    route: 'string',
+    street_number: 'string',
+    loc_lat: 'float',
+    loc_lng: 'float',
+    date: {type: 'string', length: 255}
   });
 };
 
 exports.down = function(db) {
-  return db.dropDatabase('users');
+  return null;
 };
 
 exports._meta = {

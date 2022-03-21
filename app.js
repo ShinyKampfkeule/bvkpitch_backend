@@ -11,6 +11,8 @@ const comparitiveRouter = require('./routes/comparativeOffers');
 const searchRouter = require('./routes/getSearch');
 const yieldsRouter = require('./routes/marketYields');
 const mlpRouter = require('./routes/machineLearningPrices');
+const LoginRouter = require('./routes/Login')
+const SettingsRouter = require('./routes/Settings')
 const initDB = require("./initDB");
 
 
@@ -31,6 +33,8 @@ app.use('/comparativeOffers', comparitiveRouter);
 app.use('/search', searchRouter)
 app.use('/yields', yieldsRouter)
 app.use('/mlp', mlpRouter)
+app.use('/login', LoginRouter)
+app.use('/settings', SettingsRouter)
 
 app.use(function(req, res, next) {
     next(createError(404));
