@@ -3,6 +3,7 @@ const sequelize = require("../db");
 const Users = require("./User");
 
 const SearchTracker = sequelize.define('search_tracker',{
+    user_id: {type: DataTypes.INTEGER},
     postal_code: {type: DataTypes.STRING},
     locality: {type: DataTypes.STRING},
     route: {type: DataTypes.STRING},
@@ -12,5 +13,6 @@ const SearchTracker = sequelize.define('search_tracker',{
     date: {type: DataTypes.STRING}
 },{freezeTableName: true, updatedAt: false, createdAt: false})
 SearchTracker.belongsTo(Users, {foreignKey: 'user_id', targetKey: 'id'})
+SearchTracker.removeAttribute('id')
 
 module.exports = SearchTracker

@@ -9,7 +9,8 @@ const Users = sequelize.define('users', {
     socket_search : {type: DataTypes.STRING},
     username: {type: DataTypes.STRING},
     password: {type: DataTypes.STRING},
-    seatplace: {type: DataTypes.STRING}
+    seatplace: {type: DataTypes.STRING},
+    last_seatplace: {type: DataTypes.STRING}
 }, {freezeTableName: true, updatedAt: false, createdAt: false})
 Users.belongsTo(Seat, {foreignKey: 'seatplace', targetKey: 'id'})
 

@@ -25,6 +25,7 @@ async function initDB(){
         {id: 16, name: 'Natalia Fuhrmann'},
         {id: 17, name: 'Alice Gavish'},
         {id: 18, name: 'Amar Samadi'},
+        {id: 30, name: 'Dev', username: 'Dev', password: 'n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg='}
     ]
 
     await Users.bulkCreate( usersArray, {

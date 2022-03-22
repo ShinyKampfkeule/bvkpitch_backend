@@ -33,7 +33,8 @@ exports.up = function(db) {
           onUpdate: 'RESTRICT'
         }
       }
-    }
+    },
+    last_seatplace: {type: 'string'}
   });
 };
 
