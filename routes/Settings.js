@@ -1,6 +1,7 @@
 const express = require('express');
 const Users = require("../postgres/User");
 const crypto = require("crypto");
+const Seat = require("../postgres/Seat");
 const router = express.Router();
 
 const getHashedPassword = (password) => {
@@ -11,10 +12,15 @@ const getHashedPassword = (password) => {
 router.post('/', async (req, res) => {
     const {seat} = req.body
     const {id} = req.body
-    console.log(seat)
 
-    await Users.update({seatplace: seat}, {where:{id: id}})
-    res.json({saved: true})
+    const seatResult = await Seat.findOne({where: {id: seat}})
+    if(seatResult.dataValues.is_free){
+        await Users.update({seatplace: seat}, {where:{id: id}})
+        res.json({saved: true})
+    }
+    else {
+        res.json({saved: false, message: "This seat is already occupied."})
+    }
 })
 
 router.post('/changepassword', async (req, res) => {

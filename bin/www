@@ -22,6 +22,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require("crypto");
 const Seat = require("../postgres/Seat");
 const SearchTracker = require("../postgres/SearchTracker");
+const UserSeatTracker = require("../postgres/UserSeatTracker");
 
 /**
  * Get port from environment and store in Express.
@@ -68,10 +69,27 @@ const getHashedPassword = (password) => {
 searchIO.on('connection', (socket) => {
     // console.log("Auth Connection " + socket.id)
 
-    socket.on('testConn', async (id,socket, cat) => {
+    socket.on('testConn', async (id, socketid, cat) => {
         const results = await Users.findOne({where:{id: id}})
-        if(cat === 'search'){
-            await Users.update({socket_search: socket, seatplace: results.dataValues.last_seatplace}, {where: {id: id}})
+        const seats = await Seat.findOne({where: {id: results.dataValues.last_seatplace}})
+        if(seats !== null){
+            if(seats.dataValues.is_free){
+                if(cat === 'search'){
+                    await Users.update({socket_search: socketid, seatplace: results.dataValues.last_seatplace}, {where: {id: id}})
+                    await UserSeatTracker.create({user_id: id, seatplace: results.dataValues.last_seatplace, logged_in: Date.now(), user_socket:socketid})
+                    await Seat.update({is_free: false}, {where: {id: results.dataValues.last_seatplace}})
+                }
+            }else {
+                if(cat === 'search'){
+                    await Users.update({socket_search: socketid}, {where: {id: id}})
+                    socket.emit('needSeat')
+                }
+            }
+        }else {
+            if(cat === 'search'){
+                await Users.update({socket_search: socketid}, {where: {id: id}})
+                socket.emit('needSeat')
+            }
         }
     })
 
@@ -90,8 +108,9 @@ searchIO.on('connection', (socket) => {
     socket.on('disconnecting', async () => {
         const dcUser = await Users.findOne({where: {socket_search: socket.id}})
         if(dcUser !== null){
-            console.log('here')
             await Users.update({last_seatplace: dcUser.dataValues.seatplace, seatplace: null}, {where: {id: dcUser.dataValues.id}})
+            await UserSeatTracker.update({logged_out: Date.now()}, {where:{user_socket:dcUser.dataValues.socket_search}})
+            await Seat.update({is_free: true}, {where:{id: dcUser.dataValues.seatplace}})
         }
         console.log('User disconnected', socket.id)
     })
@@ -123,6 +142,8 @@ io.on("connection", (socket) => {
                 // request.session.user = results
                 await Users.update({seatplace: results.dataValues.last_seatplace}, {where: {id: results.dataValues.id}})
 
+                // const userSeatResult = await UserSeatTracker.create({user_id: id, seatplace: results.dataValues.last_seatplace, logged_in: new Date.now()})
+
                 socket.emit('auth', {auth: true, token: token, result: results.dataValues})
             } else {
                 socket.emit('auth', {auth: false, token: false, result: 'Incorrect Username or Password. Try again!'})
@@ -134,7 +155,12 @@ io.on("connection", (socket) => {
 
     socket.on('init', async (id, sid, cat) => {
         if(cat === 'analyse'){
-            await Seat.upsert({socket: sid, id: id})
+           const seatRes = await Seat.findOne({where:{socket: id}})
+            if(seatRes !== null){
+                await Seat.upsert({socket: sid, id: id, is_free: seatRes.dataValues.is_free})
+            }else {
+                await Seat.upsert({socket: sid, id: id, is_free: true})
+            }
         }
         const userData = await Users.findOne({where:{seatplace:id}})
         console.log(userData)

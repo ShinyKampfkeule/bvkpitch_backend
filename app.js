@@ -27,6 +27,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
+app.use((res,req,next) => {
+    res.header('Access-Control-Allow-Origin','*')
+    next()
+})
 
 app.use('/analysis', indexRouter);
 app.use('/comparativeOffers', comparitiveRouter);
