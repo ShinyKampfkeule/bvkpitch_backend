@@ -23,6 +23,7 @@ const crypto = require("crypto");
 const Seat = require("../postgres/Seat");
 const SearchTracker = require("../postgres/SearchTracker");
 const UserSeatTracker = require("../postgres/UserSeatTracker");
+const {where} = require("sequelize/types");
 
 /**
  * Get port from environment and store in Express.
@@ -49,7 +50,6 @@ searchIO.use((socket, next) => {
     if (socket.handshake.query && socket.handshake.query.token){
         jwt.verify(socket.handshake.query.token, 'SECRET_KEY', (err, decoded) => {
             if (err) {
-                console.log("failed")
                 return next(new Error('Authentication error'))
             }
             socket.decoded = decoded
@@ -67,12 +67,10 @@ const getHashedPassword = (password) => {
 }
 
 searchIO.on('connection', (socket) => {
-    // console.log("Auth Connection " + socket.id)
 
     socket.on('testConn', async (id, socketid, cat) => {
         const results = await Users.findOne({where:{id: id}})
         let seats = null
-        console.log(results)
         if(results !== null){
             seats = await Seat.findOne({where: {id: results.dataValues.last_seatplace}})
         }
@@ -116,7 +114,7 @@ searchIO.on('connection', (socket) => {
             await UserSeatTracker.update({logged_out: Date.now()}, {where:{user_socket:dcUser.dataValues.socket_search}})
             await Seat.update({is_free: true}, {where:{id: dcUser.dataValues.seatplace}})
         }
-        console.log('User disconnected', socket.id)
+        // console.log('User disconnected', socket.id)
     })
 })
 
@@ -127,7 +125,7 @@ const test = async (seatplace, AddressData, CompareOffersArray, MacroDataArray, 
 let analysisSocket
 
 io.on("connection", (socket) => {
-  console.log("New client connected" + socket.id);
+  // console.log("New client connected" + socket.id);
 
     analysisSocket = socket
 
@@ -169,7 +167,6 @@ io.on("connection", (socket) => {
             }
         }
         const userData = await Users.findOne({where:{seatplace:id}})
-        console.log(userData)
         if(userData !== null){
             socket.emit('init', await returnDBData(userData.dataValues.id))
         }
@@ -186,6 +183,9 @@ io.on("connection", (socket) => {
             const user = await Users.findOne({where:{seatplace: dcSeat.dataValues.id}})
             if(user !== null){
                 await Users.update({seatplace: null}, {where: {id: user.dataValues.id}})
+            }
+            if(dcSeat.location !== 'ber'){
+                await Users.update({last_seatplace: null}, {where:{id:user.dataValues.id}})
             }
             await Seat.destroy({where: {socket: socket.id}})
         }
@@ -255,7 +255,6 @@ async function setAddress(selectedAddress, makroArray, mikroArray, id){
         }
 
         const tracker = await SearchTracker.create(trackerData)
-        console.log(tracker)
         const [address, created] = await Address.upsert(dataToUpdate)
 
         const final = address.dataValues
@@ -359,7 +358,6 @@ async function setMarketYield(selectedAddress, id){
     })
     if(res.status === 200){
         const data = await res.json()
-        console.log(data)
 
             const dataToUpdate = {
                 user_id: id,

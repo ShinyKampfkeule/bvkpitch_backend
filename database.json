@@ -1,6 +1,6 @@
 {
   "dev": {
-    "host": "localhost",
+    "host": {"ENV": "DB_HOST"},
     "user": "postgres",
     "password": "changeme",
     "database": "postgres",

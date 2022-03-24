@@ -14,9 +14,16 @@ const mlpRouter = require('./routes/machineLearningPrices');
 const LoginRouter = require('./routes/Login')
 const SettingsRouter = require('./routes/Settings')
 const initDB = require("./initDB");
+const Users = require("./postgres/User");
 
+const initfunction = async () => {
+    const user = await Users.findAll()
+    if(user === null){
+        initDB()
+    }
+}
+initfunction()
 
-initDB()
 
 var app = express();
 

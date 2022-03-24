@@ -34,24 +34,25 @@ services:
       - bvkpitch
     restart: unless-stopped
 
-#  bvkpitch-api:
-#    image: docker.io/library/bvkpitchapi
-#    restart: always
-#    container_name: bvkpitchapi
-#    ports:
-#      - "3001:3001"
-#    environment:
-#      - PORT=3001
-#    networks:
-#      - bvkpitch
+  bvkpitch-api:
+    image: docker.io/library/bvkpitchapi
+    restart: always
+    container_name: bvkpitchapi
+    ports:
+      - "3001:3001"
+    environment:
+      - DB_HOST=postgres-bvk
+      - PORT=3001
+    networks:
+      - bvkpitch
 #      - web
 #    labels:
 #      - traefik.http.routers.bvkpitch-api.rule=Host(`api.bvk-pitch.boltzmannbrain.club`)
 #      - traefik.http.routers.bvkpitch-api.tls=true
 #      - traefik.http.routers.bvkpitch-api.tls.certresolver=lets-encrypt
 #      - traefik.port=3001
-#    depends_on:
-#      - postgres-bvk
+    depends_on:
+      - postgres-bvk
 
 networks:
   bvkpitch:
