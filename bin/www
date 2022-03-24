@@ -71,7 +71,11 @@ searchIO.on('connection', (socket) => {
 
     socket.on('testConn', async (id, socketid, cat) => {
         const results = await Users.findOne({where:{id: id}})
-        const seats = await Seat.findOne({where: {id: results.dataValues.last_seatplace}})
+        let seats = null
+        console.log(results)
+        if(results !== null){
+            seats = await Seat.findOne({where: {id: results.dataValues.last_seatplace}})
+        }
         if(seats !== null){
             if(seats.dataValues.is_free){
                 if(cat === 'search'){
@@ -155,11 +159,13 @@ io.on("connection", (socket) => {
 
     socket.on('init', async (id, sid, cat) => {
         if(cat === 'analyse'){
-           const seatRes = await Seat.findOne({where:{socket: id}})
+            const seatRes = await Seat.findOne({where:{socket: id}})
             if(seatRes !== null){
-                await Seat.upsert({socket: sid, id: id, is_free: seatRes.dataValues.is_free})
+                const location = id.slice(0,3)
+                await Seat.upsert({socket: sid, id: id, is_free: seatRes.dataValues.is_free, location: location})
             }else {
-                await Seat.upsert({socket: sid, id: id, is_free: true})
+                const location = id.slice(0,3)
+                await Seat.upsert({socket: sid, id: id, is_free: true, location: location})
             }
         }
         const userData = await Users.findOne({where:{seatplace:id}})
@@ -174,6 +180,16 @@ io.on("connection", (socket) => {
         returnDate(socket)
     })
 
+    socket.on('disconnecting', async () => {
+        const dcSeat = await Seat.findOne({where:{socket: socket.id}})
+        if(dcSeat !== null){
+            const user = await Users.findOne({where:{seatplace: dcSeat.dataValues.id}})
+            if(user !== null){
+                await Users.update({seatplace: null}, {where: {id: user.dataValues.id}})
+            }
+            await Seat.destroy({where: {socket: socket.id}})
+        }
+    })
   // socket on address update
   // fetch api 21 re safe to database
   // get data from Database and emit it to id

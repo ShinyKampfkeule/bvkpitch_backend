@@ -39,4 +39,13 @@ router.post('/changepassword', async (req, res) => {
 
 })
 
+router.get('/seats', async (req, res) => {
+    try{
+        const result = await Seat.findAll({where:{is_free: true, location: 'ber'}})
+        res.json({result: result})
+    }catch (e) {
+        console.log(e)
+    }
+})
+
 module.exports = router

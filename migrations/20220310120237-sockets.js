@@ -18,7 +18,8 @@ exports.up = function(db) {
   return db.createTable('sockets', {
     id: {type: 'string', primaryKey: true},
     socket: {type: 'string'},
-    is_free: 'bool'
+    is_free: 'bool',
+    location: 'string',
   });
 };
 
