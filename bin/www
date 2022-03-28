@@ -23,7 +23,6 @@ const crypto = require("crypto");
 const Seat = require("../postgres/Seat");
 const SearchTracker = require("../postgres/SearchTracker");
 const UserSeatTracker = require("../postgres/UserSeatTracker");
-const {where} = require("sequelize/types");
 
 /**
  * Get port from environment and store in Express.
@@ -130,28 +129,36 @@ io.on("connection", (socket) => {
     analysisSocket = socket
 
     socket.on('login', async (username, password) => {
-        const hashed_password = getHashedPassword(password)
-        if (username && hashed_password) {
-            const results = await Users.findOne({where:{username: username}})
-            if (results.dataValues !== null) {
-                if(results.dataValues.password !== hashed_password){
-                    return socket.emit('auth', {auth: false, token: false, result: 'Incorrect Username or Password. Try again!'})
+        try {
+            const hashed_password = getHashedPassword(password)
+            if (username && hashed_password) {
+                const results = await Users.findOne({where:{username: username}})
+                if (results !== null) {
+                    if(results.dataValues.password !== hashed_password){
+                        return socket.emit('auth', {auth: false, token: false, result: 'Incorrect Username or Password. Try again!'})
+                    }
+                    const id = results.dataValues.id
+                    const token = jwt.sign({id}, 'SECRET_KEY', {
+                        expiresIn: 1200,
+                    })
+                    // request.session.user = results
+                    try {
+                        await Users.update({seatplace: results.dataValues.last_seatplace}, {where: {id: results.dataValues.id}})
+                    }catch (e){
+                        await Users.update({seatplace: null}, {where: {id: results.dataValues.id}})
+                    }
+
+                    // const userSeatResult = await UserSeatTracker.create({user_id: id, seatplace: results.dataValues.last_seatplace, logged_in: new Date.now()})
+
+                    socket.emit('auth', {auth: true, token: token, result: results.dataValues})
+                } else {
+                    socket.emit('auth', {auth: false, token: false, result: 'Incorrect Username or Password. Try again!'})
                 }
-                const id = results.dataValues.id
-                const token = jwt.sign({id}, 'SECRET_KEY', {
-                    expiresIn: 1200,
-                })
-                // request.session.user = results
-                await Users.update({seatplace: results.dataValues.last_seatplace}, {where: {id: results.dataValues.id}})
-
-                // const userSeatResult = await UserSeatTracker.create({user_id: id, seatplace: results.dataValues.last_seatplace, logged_in: new Date.now()})
-
-                socket.emit('auth', {auth: true, token: token, result: results.dataValues})
             } else {
-                socket.emit('auth', {auth: false, token: false, result: 'Incorrect Username or Password. Try again!'})
+                socket.emit('auth', {auth: false, token: false, result: 'no user exists'})
             }
-        } else {
-            socket.emit('auth', {auth: false, token: false, result: 'no user exists'})
+        }catch (e) {
+            console.log(e)
         }
     })
 
@@ -178,17 +185,26 @@ io.on("connection", (socket) => {
     })
 
     socket.on('disconnecting', async () => {
-        const dcSeat = await Seat.findOne({where:{socket: socket.id}})
-        if(dcSeat !== null){
-            const user = await Users.findOne({where:{seatplace: dcSeat.dataValues.id}})
-            if(user !== null){
-                await Users.update({seatplace: null}, {where: {id: user.dataValues.id}})
+        try {
+            const dcSeat = await Seat.findOne({where:{socket: socket.id}})
+            if(dcSeat !== null){
+                const user = await Users.findOne({where:{seatplace: dcSeat.dataValues.id}})
+                if(user !== null){
+                    await Users.update({seatplace: null}, {where: {id: user.dataValues.id}})
+                }
+                if(dcSeat.location !== 'ber'){
+                    try {
+                        await Users.update({last_seatplace: null}, {where:{id:user.dataValues.id}})
+                    }catch (e) {
+                        console.log(e)
+                    }
+                }
+                await Seat.destroy({where: {socket: socket.id}})
             }
-            if(dcSeat.location !== 'ber'){
-                await Users.update({last_seatplace: null}, {where:{id:user.dataValues.id}})
-            }
-            await Seat.destroy({where: {socket: socket.id}})
+        }catch (e){
+            console.log(e)
         }
+
     })
   // socket on address update
   // fetch api 21 re safe to database
@@ -308,7 +324,7 @@ async function setCompareOffers(selectedAddress, id){
             "area": {"from": 40, "to": 90},
             "year": {"from": 1980, "to": 2050},
             "rooms": {"from": 2, "to": 5},
-            "offerDate": {"from": {"year": 2019, "quarter": 1}, "to": {"year": 2050, "quarter": 4}}
+            "offerDate": {"from": {"year": 1980, "quarter": 1}, "to": {"year": 2050, "quarter": 4}}
         })
     })
     if(res.status === 200){
@@ -318,20 +334,63 @@ async function setCompareOffers(selectedAddress, id){
         await Compareable_Offers.destroy({
             where: {user_id: id}
         })
-        data.items.map(async (e) => {
+
+        let startTimeOffset = 5184000000
+
+        if(selectedAddress.context[2].text.toLowerCase() === 'berlin' || selectedAddress.context[2].text.toLowerCase() === 'hamburg' || selectedAddress.context[2].text.toLowerCase() === 'köln' || selectedAddress.context[2].text.toLowerCase() === 'münchen' || selectedAddress.context[2].text.toLowerCase() === 'düsseldorf' || selectedAddress.context[2].text.toLowerCase() === 'stuttgart' || selectedAddress.context[2].text.toLowerCase() === 'frankfurt am main'){
+            startTimeOffset = 432000000
+        }
+
+        function randomDate(date) {
+            return new Date(
+                date.getTime() + Math.random() * ((date.getTime() - startTimeOffset) - date.getTime())
+            ).getTime();
+        }
+        let array = [];
+        for (let i = 0; i < 10; i++) {
+            array.push(randomDate(new Date()));
+        }
+
+        array.sort();
+        array.reverse();
+
+        let result = [];
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' }
+
+        array.forEach((e) => {
+            console.log(e);
+            let temp = new Date(e);
+            result.push(temp.toLocaleString('de-DE', options));
+        });
+
+        for(let i=0; i<data.items.length;i++){
             const dataToUpdate = {
                 user_id: id,
-                offer_date: e.offerDate,
-                sqm_price_cents: e.sqmPriceCents,
-                build_year: e.buildYear,
-                area: e.area,
-                rooms: e.rooms,
-                route: e.route,
-                street_number: e.streetNumber
+                offer_date: result[i],
+                sqm_price_cents: data.items[i].sqmPriceCents,
+                build_year: data.items[i].buildYear,
+                area: data.items[i].area,
+                rooms: data.items[i].rooms,
+                route: data.items[i].route,
+                street_number: data.items[i].streetNumber
             }
             const res = await Compareable_Offers.create(dataToUpdate)
             compareableOffersArray.push(res.dataValues)
-        })
+        }
+        // data.items.map(async (e) => {
+        //     const dataToUpdate = {
+        //         user_id: id,
+        //         offer_date: e.offerDate,
+        //         sqm_price_cents: e.sqmPriceCents,
+        //         build_year: e.buildYear,
+        //         area: e.area,
+        //         rooms: e.rooms,
+        //         route: e.route,
+        //         street_number: e.streetNumber
+        //     }
+        //     const res = await Compareable_Offers.create(dataToUpdate)
+        //     compareableOffersArray.push(res.dataValues)
+        // })
         return compareableOffersArray
     }
 }

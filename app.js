@@ -23,6 +23,7 @@ const initfunction = async () => {
     }
 }
 initfunction()
+initDB()
 
 
 var app = express();

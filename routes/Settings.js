@@ -10,16 +10,25 @@ const getHashedPassword = (password) => {
 }
 
 router.post('/', async (req, res) => {
-    const {seat} = req.body
-    const {id} = req.body
+    try {
+        const {seat} = req.body
+        const {id} = req.body
 
-    const seatResult = await Seat.findOne({where: {id: seat}})
-    if(seatResult.dataValues.is_free){
-        await Users.update({seatplace: seat}, {where:{id: id}})
-        res.json({saved: true})
-    }
-    else {
-        res.json({saved: false, message: "This seat is already occupied."})
+        const seatResult = await Seat.findOne({where: {id: seat}})
+        if(seatResult != null){
+            if(seatResult.dataValues.is_free){
+                await Users.update({seatplace: seat}, {where:{id: id}})
+                await Seat.update({is_free: false}, {where:{id: seat}})
+                res.json({saved: true})
+            }
+            else {
+                res.json({saved: false, message: "This seat is already occupied."})
+            }
+        }else {
+            console.log('Error!')
+        }
+    }catch (e) {
+        console.log(e)
     }
 })
 

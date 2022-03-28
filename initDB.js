@@ -28,9 +28,13 @@ async function initDB(){
         {id: 30, name: 'Dev', username: 'dev', password: 'n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg='}
     ]
 
-    await Users.bulkCreate( usersArray, {
-        ignoreDuplicates: true
-    })
+    const users = Users.findAll()
+
+    if(users != null){
+        await Users.bulkCreate( usersArray, {
+            ignoreDuplicates: true
+        })
+    }
 }
 
 module.exports = initDB
